@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -12,7 +13,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.support.v4.util.LruCache;
@@ -61,57 +62,66 @@ public class CachedImageFetcher {
 		}
 	}
 
-	public void asyncSetImageBitmap(final ImageView iv, final String url) {
+	public void asyncSetImageBitmap(ImageView iv, String url) {
 
-		Bitmap cachedBitmap;
-		// First, check in memory
-		if ((mMode & MODE_MEMORY) == MODE_MEMORY && (cachedBitmap = mMemoryCache.get(url)) != null) {
-			// Use the cached version and don't spawn a thread
-			iv.setImageBitmap(cachedBitmap);
-			return;
-		}
-
-		// Then, check in disk
-		if ((mMode & MODE_DISK) == MODE_DISK && (cachedBitmap = getDiskCachedBitmap(url)) != null) {
-			iv.setImageBitmap(cachedBitmap);
-			return;
-		}
-
-		// No cached version
-		// Clear the ImageView
 		iv.setImageBitmap(null);
 
 		// And download the new image asynchronously
-		new Thread() {
-
+		final WeakReference<ImageView> imageViewReference = new WeakReference<ImageView>(iv);
+		
+		new AsyncTask<String, Void, Bitmap>() {
+			
 			@Override
-			public void run() {
-
+			protected Bitmap doInBackground(String... params) {
+				
+				String url = params[0];
+				Bitmap bitmap = null;
+				
+				// Check for cached versions
+				if (
+						// First, check in memory
+						((mMode & MODE_MEMORY) == MODE_MEMORY && (bitmap = mMemoryCache.get(url)) != null)
+						// Then, check in disk
+						|| ((mMode & MODE_DISK) == MODE_DISK && (bitmap = getDiskCachedBitmap(url)) != null)
+						
+					) {
+					return bitmap;
+				}
+				
+				// No cached versions. Download it
 				try {
-					final Bitmap bitmap = fetch(url);
-
-					// Display it
-					iv.post(new Runnable() {
-
-						@Override
-						public void run() {
-							iv.setImageBitmap(bitmap);
-						}
-					});
-
+					InputStream is = fetchStream(url);
+					
+					is.close();
+					
+					
+				} catch (IOException e) {
+					Log.e("CachedImageFetcher", "Can't download image at " + url, e);
+				}
+				
+				// And cache it
+				if (bitmap != null) {
 					// And cache it
 					if ((mMode & MODE_MEMORY) == MODE_MEMORY) {
 						mMemoryCache.put(url, bitmap);
 					}
 
 					// TODO Cache in disk
-
-				} catch (IOException e) {
-					Log.e("CachedImageFetcher", "Can't download image at " + url, e);
 				}
-
+				
+				return null;
 			}
-		}.start();
+			
+			@Override
+			protected void onPostExecute(Bitmap bitmap) {
+			
+				ImageView imageView = imageViewReference.get();
+				if (imageView != null) {
+					imageView.setImageBitmap(bitmap);
+				}
+				imageViewReference.clear();
+			}
+		}.execute(url);
 	}
 
 	private Bitmap getDiskCachedBitmap(String url) {
@@ -162,13 +172,11 @@ public class CachedImageFetcher {
 		}
 	}
 
-	private static Bitmap fetch(String urlString) throws IllegalStateException, IOException {
+	private static InputStream fetchStream(String urlString) throws IllegalStateException, IOException {
 
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpGet request = new HttpGet(urlString);
 		HttpResponse response = httpClient.execute(request);
-		InputStream is = response.getEntity().getContent();
-		
-		return BitmapFactory.decodeStream(is);
+		return response.getEntity().getContent();
 	}
 }
