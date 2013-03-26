@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.ref.SoftReference;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,9 +11,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Environment;
+import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -28,19 +27,33 @@ public class CachedImageFetcher {
 	public static final int MODE_DISK = 2;
 
 	private int mMode;
-	private Map<String, SoftReference<Drawable>> mMemoryMap;
+	private LruCache<String, Bitmap> mMemoryCache;
 	private File mCacheDir;
 
 	public CachedImageFetcher(Context context) {
-		this(context, MODE_MEMORY | MODE_DISK);
+		this(context, MODE_MEMORY | MODE_DISK, 1/8);
 	}
 
-	public CachedImageFetcher(Context context, int mode) {
+	public CachedImageFetcher(Context context, int mode, float memoryFractionToUse) {
 
 		mMode = mode;
 
 		if ((mode & MODE_MEMORY) == MODE_MEMORY) {
-			mMemoryMap = new HashMap<String, SoftReference<Drawable>>();
+			
+			if (memoryFractionToUse >= 1) {
+				throw new RuntimeException("CachedImageFetcher can't use more than 99% of the device's memory! Please specify a smaller memoryFractionToUse, like 1/8.");
+			}
+			
+		    final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
+		    final int cacheSize = (int) (maxMemory * memoryFractionToUse);
+
+		    mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
+		        @Override
+		        protected int sizeOf(String key, Bitmap bitmap) {
+		            return (bitmap.getRowBytes() * bitmap.getHeight()) / 1024;
+		        }
+		    };
+
 		}
 
 		if ((mode & MODE_DISK) == MODE_DISK) {
@@ -48,19 +61,19 @@ public class CachedImageFetcher {
 		}
 	}
 
-	public void asyncSetImageDrawable(final ImageView iv, final String url) {
+	public void asyncSetImageBitmap(final ImageView iv, final String url) {
 
-		Drawable cachedDrawable;
+		Bitmap cachedBitmap;
 		// First, check in memory
-		if ((mMode & MODE_MEMORY) == MODE_MEMORY && (cachedDrawable = getMemoryCachedDrawable(url)) != null) {
+		if ((mMode & MODE_MEMORY) == MODE_MEMORY && (cachedBitmap = mMemoryCache.get(url)) != null) {
 			// Use the cached version and don't spawn a thread
-			iv.setImageDrawable(cachedDrawable);
+			iv.setImageBitmap(cachedBitmap);
 			return;
 		}
 
 		// Then, check in disk
-		if ((mMode & MODE_DISK) == MODE_DISK && (cachedDrawable = getDiskCachedDrawable(url)) != null) {
-			iv.setImageDrawable(cachedDrawable);
+		if ((mMode & MODE_DISK) == MODE_DISK && (cachedBitmap = getDiskCachedBitmap(url)) != null) {
+			iv.setImageBitmap(cachedBitmap);
 			return;
 		}
 
@@ -75,20 +88,20 @@ public class CachedImageFetcher {
 			public void run() {
 
 				try {
-					final Drawable drawable = fetch(url);
+					final Bitmap bitmap = fetch(url);
 
 					// Display it
 					iv.post(new Runnable() {
 
 						@Override
 						public void run() {
-							iv.setImageDrawable(drawable);
+							iv.setImageBitmap(bitmap);
 						}
 					});
 
 					// And cache it
 					if ((mMode & MODE_MEMORY) == MODE_MEMORY) {
-						mMemoryMap.put(url, new SoftReference<Drawable>(drawable));
+						mMemoryCache.put(url, bitmap);
 					}
 
 					// TODO Cache in disk
@@ -101,25 +114,7 @@ public class CachedImageFetcher {
 		}.start();
 	}
 
-	private Drawable getMemoryCachedDrawable(String url) {
-
-		if (mMemoryMap.containsKey(url)) {	
-
-			// Check if the cached version was garbage collected
-			Drawable cachedDrawable = mMemoryMap.get(url).get();
-			if (cachedDrawable != null) {
-				return cachedDrawable;
-
-			} else {
-				// Clear it from the memory map
-				mMemoryMap.remove(url);
-			}
-		}
-
-		return null;
-	}
-
-	private Drawable getDiskCachedDrawable(String url) {
+	private Bitmap getDiskCachedBitmap(String url) {
 
 		try {
 			File cachedFile = new File(mCacheDir, getFileName(url));
@@ -167,13 +162,13 @@ public class CachedImageFetcher {
 		}
 	}
 
-	private static Drawable fetch(String urlString) throws IllegalStateException, IOException {
+	private static Bitmap fetch(String urlString) throws IllegalStateException, IOException {
 
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpGet request = new HttpGet(urlString);
 		HttpResponse response = httpClient.execute(request);
 		InputStream is = response.getEntity().getContent();
-
-		return Drawable.createFromStream(is, "CachedImageFetcher");
+		
+		return BitmapFactory.decodeStream(is);
 	}
 }
