@@ -29,7 +29,6 @@ public class WebCachedImageView extends ImageView {
 		super(context);
 		init(context, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK, 0.125f);
 	}
-	
 
 	public WebCachedImageView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -46,7 +45,7 @@ public class WebCachedImageView extends ImageView {
 
 		if (!isInEditMode()) {
 			mCacheMgr = CacheManager.getInstance(context, mode, memoryFractionToUse);
-		}
+		} // TODO else show placeholder
 	}
 
 	public void setImageUrl(String url) {
@@ -84,9 +83,8 @@ public class WebCachedImageView extends ImageView {
 				
 				// And cache it
 				if (bitmap != null) {
-					mCacheMgr.cacheonMemory(url, bitmap);
-
-					// TODO Cache in disk
+					mCacheMgr.cacheOnMemory(url, bitmap);
+					mCacheMgr.cacheOnDisk(url, bitmap);
 				}
 				
 				return bitmap;
