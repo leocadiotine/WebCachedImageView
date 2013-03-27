@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="WebCachedImageView">
+        <attr name="mode">
+            <enum name="no_cache" value="0" />
+            <enum name="memory" value="1" />
+            <enum name="disk" value="2" />
+        </attr>
+        <attr name="memoryPercentToUse" format="fraction" />
+    </declare-styleable>
+
+</resources>
