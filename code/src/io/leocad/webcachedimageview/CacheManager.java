@@ -34,6 +34,9 @@ public class CacheManager {
 	private File mCacheDir;
 
 	private CacheManager(Context context, int mode, float memoryFractionToUse) {
+		
+		mMode = mode;
+		mMemoryFractionToUse = memoryFractionToUse;
 
 		if ((mode & MODE_MEMORY) == MODE_MEMORY) {
 
@@ -52,7 +55,7 @@ public class CacheManager {
 			};
 		}
 
-		if ((mode & MODE_DISK) == MODE_DISK) {
+		if ((mMode & MODE_DISK) == MODE_DISK) {
 			mCacheDir = getCacheDir(context);
 		}
 	}

@@ -89,7 +89,7 @@ public class WebCachedImageView extends ImageView {
 					// TODO Cache in disk
 				}
 				
-				return null;
+				return bitmap;
 			}
 			
 			@Override
