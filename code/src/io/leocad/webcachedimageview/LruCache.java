@@ -1,3 +1,4 @@
+package io.leocad.webcachedimageview;
 /*
  * Copyright (C) 2011 The Android Open Source Project
  *
@@ -14,7 +15,7 @@
  * limitations under the License.
  */
 
-package android.support.v4.util;
+
 
 import java.util.LinkedHashMap;
 import java.util.Map;

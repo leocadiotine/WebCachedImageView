@@ -1,5 +1,6 @@
 package io.leocad.webcachedimageview;
 
+
 import java.io.File;
 import java.io.FileInputStream;
 
@@ -8,14 +9,13 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Environment;
-import android.support.v4.util.LruCache;
 
 
 public class CacheManager {
 
-	static final int MODE_NO_CACHE = 0;
-	static final int MODE_MEMORY = 1;
-	static final int MODE_DISK = 2;
+	public static final int MODE_NO_CACHE = 0;
+	public static final int MODE_MEMORY = 1;
+	public static final int MODE_DISK = 2;
 
 	private static CacheManager INSTANCE = null;
 

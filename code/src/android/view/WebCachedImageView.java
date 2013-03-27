@@ -1,4 +1,8 @@
-package io.leocad.webcachedimageview;
+package android.view;
+
+
+import io.leocad.webcachedimageview.CacheManager;
+import io.leocad.webcachedimageview.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +14,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -22,7 +27,7 @@ public class WebCachedImageView extends ImageView {
 
 	public WebCachedImageView(Context context) {
 		super(context);
-		init(context, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK, 1/8);
+		init(context, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK, 0.125f);
 	}
 	
 
@@ -31,7 +36,7 @@ public class WebCachedImageView extends ImageView {
 		
 		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.WebCachedImageView);
 		int mode = styledAttrs.getInt(R.styleable.WebCachedImageView_mode, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK);
-		float memoryFractionToUse = styledAttrs.getFraction(R.styleable.WebCachedImageView_memoryPercentToUse, 1, 1, 1/8);
+		float memoryFractionToUse = styledAttrs.getFraction(R.styleable.WebCachedImageView_memoryPercentToUse, 1, 1, 0.125f);
 		styledAttrs.recycle();
 		
 		init(context, mode, memoryFractionToUse);
@@ -39,7 +44,9 @@ public class WebCachedImageView extends ImageView {
 
 	private void init(Context context, int mode, float memoryFractionToUse) {
 
-		mCacheMgr = CacheManager.getInstance(context, mode, memoryFractionToUse);
+		if (!isInEditMode()) {
+			mCacheMgr = CacheManager.getInstance(context, mode, memoryFractionToUse);
+		}
 	}
 
 	public void setImageUrl(String url) {
@@ -68,9 +75,8 @@ public class WebCachedImageView extends ImageView {
 				// No cached versions. Download it
 				try {
 					InputStream is = fetchStream(url);
-					
+					bitmap = BitmapFactory.decodeStream(is); // TODO Add sampling
 					is.close();
-					
 					
 				} catch (IOException e) {
 					Log.e("CachedImageFetcher", "Can't download image at " + url, e);
