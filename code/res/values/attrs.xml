@@ -7,7 +7,7 @@
             <enum name="memory" value="1" />
             <enum name="disk" value="2" />
         </attr>
-        <attr name="memoryPercentToUse" format="fraction" />
+        <attr name="memoryPercentToUse" format="float" />
     </declare-styleable>
 
 </resources>

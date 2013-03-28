@@ -37,35 +37,37 @@ public class CacheManager {
 
 	private static CacheManager INSTANCE = null;
 
-	public static CacheManager getInstance(Context context, int mode, float memoryFractionToUse) {
+	public static CacheManager getInstance(Context context, int mode, float memoryPercentToUse) {
 
-		if (INSTANCE == null || INSTANCE.mMode != mode || INSTANCE.mMemoryFractionToUse != memoryFractionToUse) {
-			INSTANCE = new CacheManager(context, mode, memoryFractionToUse);
+		if (INSTANCE == null || INSTANCE.mMode != mode || INSTANCE.mMemoryPercentToUse != memoryPercentToUse) {
+			INSTANCE = new CacheManager(context, mode, memoryPercentToUse);
 		}
 
 		return INSTANCE;
 	}
 
 	private int mMode;
-	private float mMemoryFractionToUse;
+	private float mMemoryPercentToUse;
 	private LruCache<String, Bitmap> mMemoryCache;
 	private DiskLruCache mDiskCache;
 	private final Object mDiskCacheLock = new Object();
 	private boolean mDiskCacheStarting = true;
 
-	private CacheManager(Context context, int mode, float memoryFractionToUse) {
+	private CacheManager(Context context, int mode, float memoryPercentToUse) {
 
 		mMode = mode;
-		mMemoryFractionToUse = memoryFractionToUse;
+		mMemoryPercentToUse = memoryPercentToUse;
 
 		if ((mode & MODE_MEMORY) == MODE_MEMORY) {
 
-			if (memoryFractionToUse >= 1.f) {
+			if (memoryPercentToUse >= 100.f) {
 				throw new RuntimeException("WebCachedImageView can't use more than 99% of the device's memory! Please specify a smaller memoryFractionToUse, like 1/8.");
 			}
+			
+			memoryPercentToUse = memoryPercentToUse / 100;
 
 			final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-			final int cacheSize = (int) (maxMemory * memoryFractionToUse);
+			final int cacheSize = (int) (maxMemory * memoryPercentToUse);
 
 			mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 				@Override

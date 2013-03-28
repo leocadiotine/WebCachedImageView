@@ -20,7 +20,7 @@ public class WebCachedImageView extends ImageView {
 
 	public WebCachedImageView(Context context) {
 		super(context);
-		init(context, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK, 0.125f);
+		init(context, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK, 12.5f);
 	}
 
 	public WebCachedImageView(Context context, AttributeSet attrs) {
@@ -28,16 +28,16 @@ public class WebCachedImageView extends ImageView {
 		
 		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.WebCachedImageView);
 		int mode = styledAttrs.getInt(R.styleable.WebCachedImageView_mode, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK);
-		float memoryFractionToUse = styledAttrs.getFraction(R.styleable.WebCachedImageView_memoryPercentToUse, 1, 1, 0.125f);
+		float memoryFractionToUse = styledAttrs.getFloat(R.styleable.WebCachedImageView_memoryPercentToUse, 12.5f);
 		styledAttrs.recycle();
 		
 		init(context, mode, memoryFractionToUse);
 	}
 
-	private void init(Context context, int mode, float memoryFractionToUse) {
+	private void init(Context context, int mode, float memoryPercentToUse) {
 
 		if (!isInEditMode()) {
-			mCacheMgr = CacheManager.getInstance(context, mode, memoryFractionToUse);
+			mCacheMgr = CacheManager.getInstance(context, mode, memoryPercentToUse);
 		} // TODO else show placeholder
 	}
 
