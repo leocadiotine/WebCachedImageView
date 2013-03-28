@@ -4,6 +4,9 @@ package android.view;
 import io.leocad.webcachedimageview.BitmapWorkerTask;
 import io.leocad.webcachedimageview.CacheManager;
 import io.leocad.webcachedimageview.R;
+
+import java.lang.ref.WeakReference;
+
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -13,6 +16,7 @@ import android.widget.ImageView;
 public class WebCachedImageView extends ImageView {
 
 	public CacheManager mCacheMgr;
+	private WeakReference<BitmapWorkerTask> mBitmapWorkerRef;
 
 	public WebCachedImageView(Context context) {
 		super(context);
@@ -41,6 +45,32 @@ public class WebCachedImageView extends ImageView {
 
 		setImageBitmap(null); // TODO Add placeholder
 		
-		new BitmapWorkerTask(this).execute(url, mCacheMgr);
+		if (cancelPotentialWork(url)) {
+			final BitmapWorkerTask bitmapWorkerTask = new BitmapWorkerTask(this);
+			mBitmapWorkerRef = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
+			bitmapWorkerTask.execute(url, mCacheMgr);
+		}
+	}
+	
+	private boolean cancelPotentialWork(String url) {
+
+		BitmapWorkerTask task = getBitmapWorkerTask();
+	    if (task != null) {
+	    	
+			if (url != task.url) {
+	            // Cancel previous task
+	            task.cancel(true);
+	        } else {
+	            // The same work is already in progress
+	            return false;
+	        }
+	    }
+	    // No task associated with the ImageView, or an existing task was cancelled
+	    return true;
+	}
+
+	public BitmapWorkerTask getBitmapWorkerTask() {
+
+		return mBitmapWorkerRef == null? null: mBitmapWorkerRef.get();
 	}
 }

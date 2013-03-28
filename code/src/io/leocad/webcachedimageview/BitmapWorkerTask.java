@@ -18,7 +18,7 @@ import android.view.WebCachedImageView;
 public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
 
 	private WeakReference<WebCachedImageView> mImageViewReference;
-	private String mUrl;
+	public String url;
 
 	public BitmapWorkerTask(WebCachedImageView iv) {
 		mImageViewReference = new WeakReference<WebCachedImageView>(iv);
@@ -27,16 +27,16 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
 	@Override
 	protected Bitmap doInBackground(Object... params) {
 
-		mUrl = (String) params[0];
+		url = (String) params[0];
 		CacheManager cacheMgr = (CacheManager) params[1];
 		Bitmap bitmap = null;
 
 		// Check for cached versions
 		if (
 				// First, check in memory
-				((bitmap = cacheMgr.getCachedOnMemory(mUrl)) != null)
+				((bitmap = cacheMgr.getCachedOnMemory(url)) != null)
 				// Then, check in disk
-				|| ((bitmap = cacheMgr.getCachedOnDisk(mUrl)) != null)
+				|| ((bitmap = cacheMgr.getCachedOnDisk(url)) != null)
 
 			) {
 			return bitmap;
@@ -44,18 +44,18 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
 
 		// No cached versions. Download it
 		try {
-			InputStream is = fetchStream(mUrl);
+			InputStream is = fetchStream(url);
 			bitmap = BitmapFactory.decodeStream(is); // TODO Add sampling
 			is.close();
 
 		} catch (IOException e) {
-			Log.e("WebCachedImageView", "Can't download image at " + mUrl, e);
+			Log.e("WebCachedImageView", "Can't download image at " + url, e);
 		}
 
 		// And cache it
 		if (bitmap != null) {
-			cacheMgr.cacheOnMemory(mUrl, bitmap);
-			cacheMgr.cacheOnDisk(mUrl, bitmap);
+			cacheMgr.cacheOnMemory(url, bitmap);
+			cacheMgr.cacheOnDisk(url, bitmap);
 		}
 
 		return bitmap;
@@ -64,10 +64,19 @@ public class BitmapWorkerTask extends AsyncTask<Object, Void, Bitmap> {
 	@Override
 	protected void onPostExecute(Bitmap bitmap) {
 		
+		if (isCancelled()) {
+            bitmap = null;
+        }
+		
 		if (mImageViewReference != null && bitmap != null) {
             final WebCachedImageView imageView = mImageViewReference.get();
+            
             if (imageView != null) {
-                imageView.setImageBitmap(bitmap);
+            	final BitmapWorkerTask imageViewTask = imageView.getBitmapWorkerTask();
+            	
+            	if (imageViewTask == this) {
+            		imageView.setImageBitmap(bitmap);
+            	}
             }
         }
 	}
