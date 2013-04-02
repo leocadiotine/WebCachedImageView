@@ -128,16 +128,16 @@ public class CacheManager {
 		return new File(cacheDirPath + File.separator + DISK_CACHE_SUBDIR);
 	}
 
-	public Bitmap getCachedOnMemory(String url) {
+	public Bitmap getCachedOnMemory(String url, int width, int height) {
 
 		if ((mMode & MODE_MEMORY) == MODE_MEMORY) {
-			return mMemoryCache.get(url);
+			return mMemoryCache.get( getFileName(url, width, height) );
 		}
 
 		return null;
 	}
 
-	public Bitmap getCachedOnDisk(String url) {
+	public Bitmap getCachedOnDisk(String url, int width, int height) {
 
 		if ((mMode & MODE_DISK) == MODE_DISK) {
 
@@ -151,7 +151,7 @@ public class CacheManager {
 
 				if (mDiskCache != null) {
 					try {
-						Snapshot snapshot = mDiskCache.get( getFileName(url) );
+						Snapshot snapshot = mDiskCache.get( getFileName(url, width, height) );
 						
 						if (snapshot != null) {
 							InputStream is = snapshot.getInputStream(0);
@@ -171,21 +171,21 @@ public class CacheManager {
 		return null;
 	}
 
-	public void cacheOnMemory(String url, Bitmap bitmap) {
+	public void cacheOnMemory(String url, Bitmap bitmap, int width, int height) {
 
 		if ((mMode & MODE_MEMORY) == MODE_MEMORY) {
-			mMemoryCache.put(url, bitmap);
+			mMemoryCache.put(getFileName(url, width, height), bitmap);
 		}
 	}
 
-	public void cacheOnDisk(String url, Bitmap bitmap) {
+	public void cacheOnDisk(String url, Bitmap bitmap, int width, int height) {
 
 		if ((mMode & MODE_DISK) == MODE_DISK) {
 
 			synchronized (mDiskCacheLock) {
 				Snapshot snapshot;
 				try {
-					snapshot = mDiskCache.get( getFileName(url) );
+					snapshot = mDiskCache.get( getFileName(url, width, height) );
 				} catch (IOException e) {
 					Log.e("WebCachedImageView", "Couldn't init the disk cache.", e);
 					return;
@@ -195,7 +195,7 @@ public class CacheManager {
 
 					DiskLruCache.Editor editor = null;
 					try {
-						editor = mDiskCache.edit( getFileName(url) );
+						editor = mDiskCache.edit( getFileName(url, width, height) );
 						if (editor == null) {
 							return;
 						}
@@ -233,7 +233,14 @@ public class CacheManager {
 		}
 	}
 	
-	private static String getFileName(String url) {
-		return String.valueOf( url.hashCode() );
+	private static String getFileName(String url, int width, int height) {
+		
+		return new StringBuffer()
+		.append(url.hashCode())
+		.append("_")
+		.append(width)
+		.append("_")
+		.append(height)
+		.toString();
 	}
 }
