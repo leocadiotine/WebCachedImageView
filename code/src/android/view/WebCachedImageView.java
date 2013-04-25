@@ -10,9 +10,13 @@ import java.lang.ref.WeakReference;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 
 
@@ -25,6 +29,8 @@ public class WebCachedImageView extends ImageView {
 	
 	private int mWidth;
 	private int mHeight;
+	
+	private Animation mAppearAnimation;
 
 	public WebCachedImageView(Context context) {
 		super(context);
@@ -65,12 +71,32 @@ public class WebCachedImageView extends ImageView {
 			}
 			
 			mCacheMgr = CacheManager.getInstance(context, mode, memoryPercentToUse);
+			
+			mAppearAnimation = new AlphaAnimation(0.f, 1.f);
+			mAppearAnimation.setDuration(300);
+			mAppearAnimation.setRepeatCount(0);
+			mAppearAnimation.setAnimationListener(new AnimationListener() {
+				
+				@Override
+				public void onAnimationStart(Animation animation) {
+					setAlphaCompat(1.f);
+				}
+				
+				@Override
+				public void onAnimationRepeat(Animation animation) {
+				}
+				
+				@Override
+				public void onAnimationEnd(Animation animation) {
+				}
+			});
+			
 		} // TODO else show placeholder
 	}
 
 	public void setImageUrl(String url) {
 
-		setImageBitmap(null); // TODO Add placeholder
+		setAlphaCompat(0.f); // TODO Add placeholder
 		
 		if (cancelPotentialWork(url)) {
 			final BitmapWorkerTask bitmapWorkerTask = new BitmapWorkerTask(this);
@@ -97,6 +123,16 @@ public class WebCachedImageView extends ImageView {
 		return size;
 	}
 	
+	@SuppressLint("NewApi")
+	private void setAlphaCompat(float alpha) {
+		
+		if (Build.VERSION.SDK_INT >= 11) {
+			setAlpha(alpha);
+		} else {
+			setImageAlpha((int) (alpha * 255));
+		}
+	}
+	
 	private boolean cancelPotentialWork(String url) {
 
 		BitmapWorkerTask task = getBitmapWorkerTask();
@@ -117,5 +153,11 @@ public class WebCachedImageView extends ImageView {
 	public BitmapWorkerTask getBitmapWorkerTask() {
 
 		return mBitmapWorkerRef == null? null: mBitmapWorkerRef.get();
+	}
+	
+	@Override
+	public void setImageBitmap(Bitmap bm) {
+		super.setImageBitmap(bm);
+		startAnimation(mAppearAnimation);
 	}
 }
