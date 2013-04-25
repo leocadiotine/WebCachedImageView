@@ -81,7 +81,7 @@ When it's all set, your XML will look something like this:
 ###Step 5: Download the image
 Just call the following code whenever you need to download an image:
 
-    WebCachedImageView wciv = (WebCachedImageView) convertView.findViewById(R.id.wciv);
+    WebCachedImageView wciv = (WebCachedImageView) findViewById(R.id.wciv);
     wciv.setImageUrl(YOUR_IMAGE_URL);
     
 You don't have to spawn a new thread or create an `AsyncTask` to do that. `WebCachedImageView` does that for you.
