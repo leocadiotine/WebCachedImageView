@@ -8,6 +8,7 @@
             <enum name="disk" value="2" />
         </attr>
         <attr name="memoryPercentToUse" format="float" />
+        <attr name="placeHolder" format="reference" />
     </declare-styleable>
 
 </resources>

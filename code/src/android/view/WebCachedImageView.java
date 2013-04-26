@@ -10,13 +10,10 @@ import java.lang.ref.WeakReference;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Bitmap;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 
 
@@ -30,7 +27,7 @@ public class WebCachedImageView extends ImageView {
 	private int mWidth;
 	private int mHeight;
 	
-	private Animation mAppearAnimation;
+	private Drawable mPlaceHolder;
 
 	public WebCachedImageView(Context context) {
 		super(context);
@@ -43,13 +40,15 @@ public class WebCachedImageView extends ImageView {
 		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.WebCachedImageView);
 		int mode = styledAttrs.getInt(R.styleable.WebCachedImageView_mode, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK);
 		float memoryFractionToUse = styledAttrs.getFloat(R.styleable.WebCachedImageView_memoryPercentToUse, 12.5f);
+		mPlaceHolder = styledAttrs.getDrawable(R.styleable.WebCachedImageView_placeHolder);
+        
 		styledAttrs.recycle();
 		
 		init(context, mode, memoryFractionToUse, attrs);
 	}
 
 	private void init(Context context, int mode, float memoryPercentToUse, AttributeSet attrs) {
-
+		
 		if (!isInEditMode()) {
 			
 			// Get the image dimensions
@@ -71,32 +70,16 @@ public class WebCachedImageView extends ImageView {
 			}
 			
 			mCacheMgr = CacheManager.getInstance(context, mode, memoryPercentToUse);
-			
-			mAppearAnimation = new AlphaAnimation(0.f, 1.f);
-			mAppearAnimation.setDuration(300);
-			mAppearAnimation.setRepeatCount(0);
-			mAppearAnimation.setAnimationListener(new AnimationListener() {
-				
-				@Override
-				public void onAnimationStart(Animation animation) {
-					setAlphaCompat(1.f);
-				}
-				
-				@Override
-				public void onAnimationRepeat(Animation animation) {
-				}
-				
-				@Override
-				public void onAnimationEnd(Animation animation) {
-				}
-			});
-			
-		} // TODO else show placeholder
+		} 
+		
+		if(mPlaceHolder != null) {
+			setImageDrawable(mPlaceHolder);
+		}
 	}
 
 	public void setImageUrl(String url) {
 
-		setAlphaCompat(0.f); // TODO Add placeholder
+		setImageDrawable(mPlaceHolder);
 		
 		if (cancelPotentialWork(url)) {
 			final BitmapWorkerTask bitmapWorkerTask = new BitmapWorkerTask(this);
@@ -123,18 +106,11 @@ public class WebCachedImageView extends ImageView {
 		return size;
 	}
 	
-	@SuppressLint("NewApi")
-	private void setAlphaCompat(float alpha) {
-		
-		if (Build.VERSION.SDK_INT >= 11) {
-			setAlpha(alpha);
-		} else {
-			setImageAlpha((int) (alpha * 255));
-		}
-	}
-	
 	private boolean cancelPotentialWork(String url) {
-
+		if (url == null) {
+			return false;
+		}
+		
 		BitmapWorkerTask task = getBitmapWorkerTask();
 	    if (task != null) {
 	    	
@@ -153,11 +129,5 @@ public class WebCachedImageView extends ImageView {
 	public BitmapWorkerTask getBitmapWorkerTask() {
 
 		return mBitmapWorkerRef == null? null: mBitmapWorkerRef.get();
-	}
-	
-	@Override
-	public void setImageBitmap(Bitmap bm) {
-		super.setImageBitmap(bm);
-		startAnimation(mAppearAnimation);
 	}
 }
