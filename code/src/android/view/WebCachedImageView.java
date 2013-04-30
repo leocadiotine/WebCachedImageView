@@ -126,10 +126,17 @@ public class WebCachedImageView extends ImageView {
 	@SuppressLint("NewApi")
 	private void setAlphaCompat(float alpha) {
 		
-		if (Build.VERSION.SDK_INT >= 11) {
+		if (Build.VERSION.SDK_INT >= 11 && Build.VERSION.SDK_INT < 16) {
 			setAlpha(alpha);
-		} else {
+		} else if (Build.VERSION.SDK_INT >= 16) {
 			setImageAlpha((int) (alpha * 255));
+		} else {
+			//Compatibility version: no alpha
+			if (alpha == 0.f) {
+				setVisibility(View.INVISIBLE);
+			} else {
+				setVisibility(View.VISIBLE);
+			}
 		}
 	}
 	
