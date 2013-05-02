@@ -95,3 +95,14 @@ If you use this code, I'd appreciate you refer my name (Leocadio Tiné) and the 
 Pull requests are always welcome. So are donations :)
 
 To find me, buzz at `me[at]leocad.io` or [follow me on Twitter](http://www.twitter.com/leocadiotine). To read interesting stuff, go to [my blog](http://blog.leocad.io).
+
+~~~~
+:::::::::::::
+::         ::
+:: Made at ::
+::         ::
+:::::::::::::
+     ::
+Hacker School
+:::::::::::::
+~~~~
