@@ -56,8 +56,19 @@ public class WebCachedImageView extends ImageView {
 			if (attrs != null) {
 				
 				TypedArray styledAttrs = context.obtainStyledAttributes(attrs, ATTRS_DIMEN_ANDROID);
-				mWidth = styledAttrs.getDimensionPixelSize(0, ViewGroup.LayoutParams.MATCH_PARENT);
-				mHeight = styledAttrs.getDimensionPixelSize(1, ViewGroup.LayoutParams.MATCH_PARENT);
+				
+				try {
+					mWidth = styledAttrs.getDimensionPixelSize(0, ViewGroup.LayoutParams.MATCH_PARENT);
+				} catch (UnsupportedOperationException e) {
+					// This dimension is either "match_parent" or "wrap_content"
+					mWidth = -1;
+				}
+				
+				try {
+					mHeight = styledAttrs.getDimensionPixelSize(1, ViewGroup.LayoutParams.MATCH_PARENT);
+				} catch (UnsupportedOperationException e) {
+					mHeight = -1;
+				}
 				
 				styledAttrs.recycle();
 				
