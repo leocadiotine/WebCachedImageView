@@ -41,7 +41,7 @@ public class WebCachedImageView extends ImageView {
 		super(context, attrs);
 		
 		TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.WebCachedImageView);
-		int mode = styledAttrs.getInt(R.styleable.WebCachedImageView_mode, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK);
+		int mode = styledAttrs.getInt(R.styleable.WebCachedImageView_cache_mode, CacheManager.MODE_MEMORY | CacheManager.MODE_DISK);
 		float memoryFractionToUse = styledAttrs.getFloat(R.styleable.WebCachedImageView_memoryPercentToUse, 12.5f);
 		styledAttrs.recycle();
 		
