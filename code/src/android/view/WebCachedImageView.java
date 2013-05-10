@@ -109,7 +109,7 @@ public class WebCachedImageView extends ImageView {
 
 		setAlphaCompat(0.f); // TODO Add placeholder
 		
-		if (cancelPotentialWork(url)) {
+		if (url != null && cancelPotentialWork(url)) {
 			final BitmapWorkerTask bitmapWorkerTask = new BitmapWorkerTask(this);
 			mBitmapWorkerRef = new WeakReference<BitmapWorkerTask>(bitmapWorkerTask);
 			bitmapWorkerTask.execute(url, mCacheMgr, mWidth, mHeight);
