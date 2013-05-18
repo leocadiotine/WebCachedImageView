@@ -60,7 +60,7 @@ If you want to, you can fine-tune `WebCachedImageView`'s settings. To do that, f
 By default, `WebCachedImageView` allocates 1/8 (12.5%) of the phone's memory to the memory cache. To change that, set a `float` value to the `app:memoryPercentToUse` attribute.
 
 ####Caching mode
-`WebCachedImageView` can cache in two levels: memory and disk. By default' it uses both. But you can set the `app:mode` value to `no_cache`, `memory` or `disk`.
+`WebCachedImageView` can cache in two levels: memory and disk. By default' it uses both. But you can set the `app:cache_mode` value to `no_cache`, `memory` or `disk`.
 
 When it's all set, your XML will look something like this:
 
@@ -74,7 +74,7 @@ When it's all set, your XML will look something like this:
             android:layout_width="90dp"
             android:layout_height="90dp"
             app:memoryPercentToUse="20.0"
-            app:mode="memory" />
+            app:cache_mode="memory" />
             
     </RelativeLayout>
         
