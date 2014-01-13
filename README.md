@@ -54,7 +54,7 @@ You need to add the `WebCachedImageView` tag to your XML layout file:
 ###Step 4 (optional): Fine-tuning
 If you want to, you can fine-tune `WebCachedImageView`'s settings. To do that, first you'll have to add the following attribute to your root XML node:
 
-    xmlns:app="http://schemas.android.com/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 
 ####Memory allocation
 By default, `WebCachedImageView` allocates 1/8 (12.5%) of the phone's memory to the memory cache. To change that, set a `float` value to the `app:memoryPercentToUse` attribute.
@@ -65,7 +65,7 @@ By default, `WebCachedImageView` allocates 1/8 (12.5%) of the phone's memory to 
 When it's all set, your XML will look something like this:
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
