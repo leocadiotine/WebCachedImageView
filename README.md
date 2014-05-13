@@ -92,8 +92,13 @@ Just call the following code whenever you need to download an image:
 
     WebCachedImageView wciv = (WebCachedImageView) findViewById(R.id.wciv);
     wciv.setImageUrl(YOUR_IMAGE_URL);
-    
+
 You don't have to spawn a new thread or create an `AsyncTask` to do that. `WebCachedImageView` does that for you.
+    
+###Proguard
+If you use Proguard, you have to add this line to your `proguard-rules.txt`:
+
+    -keep class android.view.WebCachedImageView { *; }
 
 ##License
 WebCachedImageView source code is released under BSD 2-clause license. Check LICENSE file for more information.
