@@ -1,6 +1,3 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="io.leocad.webcachedimageview">
-
-    <application android:allowBackup="false" />
-
+<manifest package="io.leocad.webcachedimageview">
+    <application />
 </manifest>
