@@ -41,7 +41,7 @@ In Android Studio, add this to your project's `build.gradle`:
     }
     
     dependencies {
-	    compile 'io.leocad:webcachedimageview:1.0'
+	    compile 'io.leocad:webcachedimageview:2.0.0'
 	}
 
 ###Step 2: Add the permissions to your AndroidManifest.xml
@@ -59,6 +59,8 @@ You need to add the `WebCachedImageView` tag to your XML layout file:
         android:id="@+id/wciv"
         android:layout_width="90dp"
         android:layout_height="90dp" />
+
+**Note:** if you're upgrading from version 1.0, you should replace your `<WebCachedImageView />` tags with the one above (with the `io.leocad.view` prefix).
 
 ###Step 4 (optional): Fine-tuning
 If you want to, you can fine-tune `WebCachedImageView`'s settings. To do that, first you'll have to add the following attribute to your root XML node:
