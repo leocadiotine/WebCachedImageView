@@ -55,7 +55,7 @@ The `WRITE_EXTERNAL_STORAGE` is only required if you enable the disk cache.
 ###Step 3: Add the view to your XML layout
 You need to add the `WebCachedImageView` tag to your XML layout file:
 
-    <WebCachedImageView
+    <io.leocad.view.WebCachedImageView
         android:id="@+id/wciv"
         android:layout_width="90dp"
         android:layout_height="90dp" />
@@ -78,7 +78,7 @@ When it's all set, your XML will look something like this:
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <WebCachedImageView
+        <io.leocad.view.WebCachedImageView
             android:id="@+id/wciv"
             android:layout_width="90dp"
             android:layout_height="90dp"
@@ -98,7 +98,7 @@ You don't have to spawn a new thread or create an `AsyncTask` to do that. `WebCa
 ###Proguard
 If you use Proguard, you have to add this line to your `proguard-rules.txt`:
 
-    -keep class android.view.WebCachedImageView { *; }
+    -keep class io.leocad.view.WebCachedImageView { *; }
 
 ##License
 WebCachedImageView source code is released under BSD 2-clause license. Check LICENSE file for more information.

@@ -1,11 +1,5 @@
-package android.view;
+package io.leocad.view;
 
-
-import io.leocad.webcachedimageview.BitmapWorkerTask;
-import io.leocad.webcachedimageview.CacheManager;
-import io.leocad.webcachedimageview.R;
-
-import java.lang.ref.WeakReference;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -14,10 +8,20 @@ import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.Display;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
+
+import java.lang.ref.WeakReference;
+
+import io.leocad.webcachedimageview.BitmapWorkerTask;
+import io.leocad.webcachedimageview.CacheManager;
+import io.leocad.webcachedimageview.R;
 
 
 public class WebCachedImageView extends ImageView {
