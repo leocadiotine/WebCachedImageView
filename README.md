@@ -1,6 +1,6 @@
 #WebCachedImageView
 
-![WebCachedImageView logo](https://dl.dropboxusercontent.com/u/5135185/blog/wciv.png)
+![WebCachedImageView logo](http://static.leocad.io/wciv.png)
 
 An `ImageView` capable of downloading images from the web and caching them for faster and offline access.
 
